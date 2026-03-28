@@ -1,0 +1,14 @@
+[Unit]
+Description=RasPi Manager for Autodarts
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/raspdarts
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
