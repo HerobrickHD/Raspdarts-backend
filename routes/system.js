@@ -1,4 +1,4 @@
-// backend/routes/system.js — RasPi Manager self-update
+// routes/system.js — RasPi Manager self-update
 const express = require('express');
 const { spawn } = require('child_process');
 const router = express.Router();
@@ -42,7 +42,7 @@ router.post('/update', (req, res) => {
 
     // Step 2: npm install
     send({ type: 'log', line: '--- npm install ---' });
-    const code2 = await spawnLogged(res, 'sudo', ['bash', '-c', `cd ${INSTALL_DIR}/backend && npm install --omit=dev`]);
+    const code2 = await spawnLogged(res, 'sudo', ['bash', '-c', `cd ${INSTALL_DIR} && npm install --omit=dev`]);
     if (code2 !== 0) {
       send({ type: 'done', success: false, error: `npm install failed (exit ${code2})` });
       setAptRunning(false);

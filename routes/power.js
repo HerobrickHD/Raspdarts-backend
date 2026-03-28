@@ -1,4 +1,4 @@
-// backend/routes/power.js
+// routes/power.js
 const express = require('express');
 const { exec } = require('child_process');
 

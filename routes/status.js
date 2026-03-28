@@ -1,4 +1,4 @@
-// backend/routes/status.js
+// routes/status.js
 const express = require('express');
 const fs = require('fs/promises');
 const { exec } = require('child_process');
@@ -75,28 +75,17 @@ function getAutodartVersion() {
   });
 }
 
-async function readOsVersion() {
-  try {
-    const raw = await fs.readFile('/etc/os-release', 'utf8');
-    const m = raw.match(/PRETTY_NAME="([^"]+)"/);
-    return m ? m[1] : 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
-
 router.get('/', async (req, res) => {
   try {
-    const [cpu_percent, ram, temp_celsius, uptime_seconds, autodarts_version, os_version] = await Promise.all([
+    const [cpu_percent, ram, temp_celsius, uptime_seconds, autodarts_version] = await Promise.all([
       readCpuPercent(),
       readRam(),
       readTemp(),
       readUptime(),
       getAutodartVersion(),
-      readOsVersion(),
     ]);
     const { version } = require('../package.json');
-    res.json({ cpu_percent, ...ram, temp_celsius, uptime_seconds, autodarts_version, os_version, ip_address: getLocalIP(), raspdarts_version: version });
+    res.json({ cpu_percent, ...ram, temp_celsius, uptime_seconds, autodarts_version, ip_address: getLocalIP(), raspdarts_version: version });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

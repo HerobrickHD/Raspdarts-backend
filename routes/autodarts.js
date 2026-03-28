@@ -1,4 +1,4 @@
-// backend/routes/autodarts.js
+// routes/autodarts.js
 const express = require('express');
 const { spawn } = require('child_process');
 const router = express.Router();

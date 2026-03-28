@@ -65,7 +65,6 @@ curl http://raspdarts.local:8743/status
   "uptime": 3600,
   "ip": "192.168.1.42",
   "autodarts": "0.20.1",
-  "os": "Debian GNU/Linux 12 (bookworm)",
   "version": "1.0.0"
 }
 ```
