@@ -61,4 +61,41 @@ router.post('/update', (req, res) => {
   })();
 });
 
+router.post('/uninstall', (req, res) => {
+  const { isAptRunning, setAptRunning } = req.app.locals;
+  if (isAptRunning()) return res.status(409).json({ error: 'Already running' });
+  setAptRunning(true);
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('Connection', 'keep-alive');
+
+  const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`);
+
+  (async () => {
+    send({ type: 'log', line: '=== Uninstalling RasPi Manager ===' });
+
+    send({ type: 'log', line: '--- Disabling service ---' });
+    await spawnLogged(res, 'sudo', ['bash', '-c',
+      'systemctl disable raspdarts && ' +
+      'rm -f /etc/systemd/system/raspdarts.service && ' +
+      'systemctl daemon-reload'
+    ]);
+
+    send({ type: 'log', line: '--- Removing files ---' });
+    await spawnLogged(res, 'sudo', ['bash', '-c', `rm -rf ${INSTALL_DIR}`]);
+
+    send({ type: 'log', line: 'RasPi Manager uninstalled.' });
+    send({ type: 'done', success: true });
+    setAptRunning(false);
+    res.end();
+
+    // Stop service last — after response is sent
+    setTimeout(() => {
+      spawn('sudo', ['bash', '-c', 'systemctl stop raspdarts'], { detached: true, stdio: 'ignore' }).unref();
+    }, 500);
+  })();
+});
+
 module.exports = { router };
