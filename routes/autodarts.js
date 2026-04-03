@@ -65,6 +65,7 @@ router.post('/uninstall', (req, res) => {
   send({ type: 'log', line: '=== Uninstalling Autodarts ===' });
 
   const proc = spawn('sudo', ['bash', '-c',
+    'systemctl stop autodarts 2>/dev/null; systemctl disable autodarts 2>/dev/null; ' +
     'rm -f /usr/local/bin/autodarts && ' +
     'find /root/.local /home/pi/.local /home/pi/.autodarts -name autodarts -maxdepth 6 -type f 2>/dev/null | xargs rm -f 2>/dev/null; ' +
     'echo "Autodarts removed."'
