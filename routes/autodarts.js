@@ -66,7 +66,7 @@ router.post('/uninstall', (req, res) => {
 
   const proc = spawn('sudo', ['bash', '-c',
     'rm -f /usr/local/bin/autodarts && ' +
-    'find /root/.local /home/pi/.local -name autodarts -maxdepth 6 -type f 2>/dev/null | xargs rm -f && ' +
+    'find /root/.local /home/pi/.local /home/pi/.autodarts -name autodarts -maxdepth 6 -type f 2>/dev/null | xargs rm -f 2>/dev/null; ' +
     'echo "Autodarts removed."'
   ]);
 
