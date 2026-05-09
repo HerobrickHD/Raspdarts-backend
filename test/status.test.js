@@ -68,11 +68,12 @@ describe('GET /status', () => {
     expect(res.body.autodarts_version).toBe('1.2.3');
   });
 
-  it('erkennt autodarts-version vom /home/pi/.autodarts Pfad', async () => {
+  it('erkennt autodarts-version vom HOME/.autodarts Pfad', async () => {
     jest.resetModules();
     setupFsMock();
+    const userHome = process.env.HOME;
     require('child_process').exec.mockImplementation((cmd, cb) => {
-      if (cmd === '/home/pi/.autodarts/autodarts --version') cb(null, 'autodarts 1.5.0\n', '');
+      if (cmd === `${userHome}/.autodarts/autodarts --version`) cb(null, 'autodarts 1.5.0\n', '');
       else cb(new Error('not found'), '', '');
     });
     app = require('../server');

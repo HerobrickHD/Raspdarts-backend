@@ -3,7 +3,7 @@ const express = require('express');
 const { spawn } = require('child_process');
 const router = express.Router();
 
-const INSTALL_DIR = '/home/pi/raspdarts';
+const INSTALL_DIR = `${process.env.HOME}/raspdarts`;
 
 function spawnLogged(res, cmd, args, opts) {
   const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`);

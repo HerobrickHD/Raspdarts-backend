@@ -53,12 +53,13 @@ async function readUptime() {
 }
 
 function getAutodartVersion() {
+  const h = process.env.HOME;
   const candidates = [
     '/usr/local/bin/autodarts --version',
     'autodarts --version',
-    '/home/pi/.local/bin/autodarts --version',
-    '/home/pi/.local/opt/autodarts/autodarts --version',
-    '/home/pi/.autodarts/autodarts --version',
+    `${h}/.local/bin/autodarts --version`,
+    `${h}/.local/opt/autodarts/autodarts --version`,
+    `${h}/.autodarts/autodarts --version`,
   ];
   return new Promise((resolve) => {
     const tryNext = (i) => {

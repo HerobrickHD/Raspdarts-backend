@@ -4,6 +4,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REAL_USER="${SUDO_USER:-$(logname 2>/dev/null || echo pi)}"
+REAL_HOME="/home/$REAL_USER"
 
 echo "=== RasPi Manager Setup ==="
 
@@ -19,8 +21,8 @@ fi
 # 2. npm install
 echo "[2/5] Installing backend dependencies..."
 cd "$SCRIPT_DIR"
-sudo -u pi npm install --omit=dev
-sudo -u pi npm audit fix --omit=dev
+sudo -u "$REAL_USER" npm install --omit=dev
+sudo -u "$REAL_USER" npm audit fix --omit=dev
 
 # 3. Set hostname
 echo "[3/5] Setting hostname to 'raspdarts'..."
@@ -38,14 +40,14 @@ fi
 
 # 4. Passwordless sudo for backend operations
 echo "[4/5] Configuring sudo permissions..."
-cat > /etc/sudoers.d/raspdarts << 'EOF'
-pi ALL=(root) NOPASSWD: /usr/bin/apt-get update, /usr/bin/apt-get upgrade -y, /bin/bash -c *, /sbin/reboot, /sbin/shutdown -h now
+cat > /etc/sudoers.d/raspdarts << EOF
+$REAL_USER ALL=(root) NOPASSWD: /usr/bin/apt-get update, /usr/bin/apt-get upgrade -y, /bin/bash -c *, /sbin/reboot, /sbin/shutdown -h now
 EOF
 chmod 440 /etc/sudoers.d/raspdarts
 
 # 5. systemd service
 echo "[5/5] Registering systemd service..."
-cp "$SCRIPT_DIR/raspdarts.service" /etc/systemd/system/raspdarts.service
+sed "s|User=pi|User=$REAL_USER|; s|/home/pi|$REAL_HOME|g" "$SCRIPT_DIR/raspdarts.service" > /etc/systemd/system/raspdarts.service
 systemctl daemon-reload
 systemctl enable raspdarts
 systemctl restart raspdarts

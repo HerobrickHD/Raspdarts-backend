@@ -17,7 +17,7 @@ router.post('/update', (req, res) => {
 
   // get.autodarts.io installer — runs as root via sudo bash
   const proc = spawn('sudo', ['bash', '-c', 'curl -sL get.autodarts.io | bash'], {
-    env: { ...process.env, DEBIAN_FRONTEND: 'noninteractive', HOME: '/home/pi' },
+    env: { ...process.env, DEBIAN_FRONTEND: 'noninteractive' },
   });
 
   proc.stdout.on('data', d => d.toString().split('\n').filter(Boolean).forEach(line => send({ type: 'log', line })));
@@ -32,7 +32,7 @@ router.post('/update', (req, res) => {
     if (code === 0) {
       // Copy binary to /usr/local/bin so pi user can read the version
       const { exec } = require('child_process');
-      exec("sudo bash -c 'bin=$(find /root/.local /home/pi/.local -name autodarts -maxdepth 6 -type f 2>/dev/null | head -1); [ -n \"$bin\" ] && rm -f /usr/local/bin/autodarts && cp \"$bin\" /usr/local/bin/autodarts && chmod 755 /usr/local/bin/autodarts'", () => {
+      exec(`sudo bash -c 'bin=$(find /root/.local ${process.env.HOME}/.local -name autodarts -maxdepth 6 -type f 2>/dev/null | head -1); [ -n "$bin" ] && rm -f /usr/local/bin/autodarts && cp "$bin" /usr/local/bin/autodarts && chmod 755 /usr/local/bin/autodarts'`, () => {
         send({ type: 'done', success: true });
         setAptRunning(false);
         res.end();
@@ -67,7 +67,7 @@ router.post('/uninstall', (req, res) => {
   const proc = spawn('sudo', ['bash', '-c',
     'systemctl stop autodarts 2>/dev/null; systemctl disable autodarts 2>/dev/null; ' +
     'rm -f /usr/local/bin/autodarts && ' +
-    'find /root/.local /home/pi/.local /home/pi/.autodarts -name autodarts -maxdepth 6 -type f 2>/dev/null | xargs rm -f 2>/dev/null; ' +
+    `find /root/.local ${process.env.HOME}/.local ${process.env.HOME}/.autodarts -name autodarts -maxdepth 6 -type f 2>/dev/null | xargs rm -f 2>/dev/null; ` +
     'echo "Autodarts removed."'
   ]);
 
